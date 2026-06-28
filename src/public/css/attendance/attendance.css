@@ -1,0 +1,95 @@
+/* 画面全体の背景（薄いグレー）と中央寄せ */
+.attendance-container {
+    background-color: #f7f7f9; /* とても薄いグレー */
+    min-height: calc(100vh - 70px); /* ヘッダーの高さを引いた全画面 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 中央のカードエリア */
+.attendance-card {
+    text-align: center;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 500px;
+}
+
+/* 1. 現在のステータス（グレーの角丸、黒文字） */
+.status-badge {
+    display: inline-block;
+    background-color: #e0e0e0; /* グレーの背景 */
+    color: #333333; /* 黒文字 */
+    padding: 6px 20px;
+    border-radius: 20px; /* 角丸 */
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+}
+
+/* 2. 現在の日付と曜日（大きめ） */
+.current-date {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #444444;
+    margin-bottom: 8px;
+}
+
+/* 3. 現時刻（さらに大きめ） */
+.current-time {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #111111;
+    margin-bottom: 32px;
+    letter-spacing: 2px;
+}
+
+/* 4. ボタンエリア */
+.btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 16px; /* ボタン同士の横並びの隙間 */
+}
+
+.btn {
+    display: inline-block;
+    width: 160px;
+    padding: 14px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* 黒地に白ボタン */
+.btn-black {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #000000;
+}
+.btn-black:hover {
+    background-color: #333333;
+}
+
+/* 白地に黒ボタン */
+.btn-white {
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #000000;
+}
+.btn-white:hover {
+    background-color: #f0f0f0;
+}
+
+/* 退勤済メッセージ */
+.thanks-message {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #222222;
+    margin: 16px 0;
+}
