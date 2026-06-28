@@ -1,0 +1,94 @@
+/* 画面全体の背景（薄いグレー） */
+.attendance-container {
+    background-color: #f7f7f9;
+    min-height: calc(100vh - 70px);
+    padding: 40px 20px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 一覧を包むメインエリア */
+.attendance-list-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* タイトル（左寄せ） */
+.page-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+    border-left: 4px solid #000; /* 「｜」の部分をより強調したい場合 */
+    padding-left: 8px;
+}
+
+/* 月移動ナビゲーション */
+.month-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto 30px auto;
+}
+
+.current-month {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #111;
+}
+
+.nav-link {
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    padding: 6px 14px;
+    border-radius: 4px;
+    background: #fff;
+    transition: background 0.2s;
+}
+
+.nav-link:hover {
+    background: #f0f0f0;
+}
+
+/* 勤怠テーブル */
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.attendance-table th,
+.attendance-table td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+}
+
+.attendance-table th {
+    background-color: #fafafa;
+    color: #555;
+    font-weight: bold;
+}
+
+/* 日付カラムだけ少し強調 */
+.col-date {
+    font-weight: bold;
+    color: #333;
+}
+
+/* 詳細リンク */
+.detail-link {
+    color: #000;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.detail-link:hover {
+    color: #555;
+}

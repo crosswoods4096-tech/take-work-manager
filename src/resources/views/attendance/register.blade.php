@@ -1,3 +1,11 @@
+@extends('layouts.app')
+
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/attendance/register.css') }}">
+@endsection
+
+@section('content')
+
 {{-- 全体の背景色を薄いグレーにするため、コンテナで囲みます --}}
 <div class="attendance-container">
     <div class="attendance-card">
