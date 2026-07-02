@@ -14,8 +14,8 @@
             @auth
             <a href="{{ route('attendance.register') }}" class="header-link">勤怠</a>
             <a href="{{ route('attendance.index') }}" class="header-link">勤怠一覧</a>
-            <a href="{{ route('applications.index') }}" class="header-link">申請</a>
-            <a href="{{ route('reports.index') }}" class="header-link">レポート</a>
+            <!-- <a href="{{ route('applicate.index') }}" class="header-link">申請</a> -->
+            <!-- <a href="{{ route('reports.index') }}" class="header-link">レポート</a> -->
 
             {{-- ログアウト（POST送信） --}}
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">

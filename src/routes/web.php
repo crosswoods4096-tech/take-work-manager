@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ApplicationController;
 
 // ==========================================
 // ゲスト専用ルート（ログインしていない状態のみアクセス可能）
@@ -33,8 +34,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/attendance/rest/end', [AttendanceController::class, 'endRest'])->name('attendance.rest.end');
     Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.index');
 
-    // （仮）詳細画面用のルート（エラー回避のため名前だけ定義しておきます）
-    Route::get('/attendance/detail/{date}', function ($date) {
-        return "勤怠詳細ページ（日付: {$date}）※今後実装します";
-    })->name('attendance.detail');
+    // 勤怠一覧画面
+    Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.index');
+    // 👇 これを追記：レポート画面用の張りぼてルート
+    Route::get('/report', [AttendanceController::class, 'report'])->name('reports.index');
+    // 申請一覧画面用のルート
+    Route::get('/application/list', [ApplicationController::class, 'index'])->name('applicate.index');
+    // 勤怠詳細画面（表示はAttendanceControllerが担当）
+    Route::get('/attendance/detail/{date}', [AttendanceController::class, 'detail'])->name('attendance.detail');
+
+    // 変更：ポスト先を ApplicationController に切り替え
+    Route::post('/attendance/detail/{date}/update', [ApplicationController::class, 'storeCorrection'])->name('attendance.update');
 });

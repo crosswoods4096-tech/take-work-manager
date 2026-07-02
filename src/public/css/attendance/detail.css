@@ -1,0 +1,125 @@
+/* 画面全体の背景（薄いグレー） */
+.attendance-container {
+    background-color: #f7f7f9;
+    min-height: calc(100vh - 70px);
+    padding: 40px 20px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 詳細を包むメインエリア */
+.attendance-detail-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* タイトル（左寄せ） */
+.page-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+    border-left: 4px solid #000;
+    padding-left: 8px;
+}
+
+/* 表形式のスタイル */
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.detail-table th {
+    width: 25%;
+    text-align: left;
+    padding: 16px 8px;
+    font-size: 1rem;
+    color: #444;
+    vertical-align: middle;
+}
+
+.detail-table td {
+    padding: 16px 8px;
+    vertical-align: middle;
+}
+
+/* 名前のスタイル */
+.user-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #111;
+}
+
+/* 日付表示（左側に年、右側に日付を配置しつつ時間入力と揃える） */
+.date-display {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #111;
+}
+
+.date-year {
+    width: 80px; /* 年の幅を固定して左側に寄せる */
+    color: #666;
+}
+
+/* 時間入力グループ（○○:○○ ～ ○○:○○） */
+.time-range-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.time-input {
+    width: 80px;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.range-separator {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* 備考テキストエリア（ボックス形式） */
+.remarks-textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+/* 右下にボタンを配置するエリア */
+.form-actions {
+    display: flex;
+    justify-content: flex-end; /* 右寄せ */
+    margin-top: 20px;
+}
+
+/* 修正ボタン（黒地に白） */
+.btn-submit {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    padding: 12px 40px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover {
+    background-color: #333333;
+}

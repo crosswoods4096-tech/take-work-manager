@@ -265,4 +265,32 @@ class AttendanceController extends Controller
             'attendances'
         ));
     }
+    // --- クラス内に勤怠詳細メソッドを追記 ---
+
+    public function detail($date)
+    {
+        $user = Auth::user();
+
+        // 1. 指定された日付の出勤レコードを取得
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('date', $date)
+            ->first();
+
+        // 2. 出勤レコードがある場合、紐づく休憩レコードを古い順に取得
+        $rests = collect(); // データがない時のために空のコレクションを用意
+        if ($attendance) {
+            $rests = Rest::where('attendance_id', $attendance->id)
+                ->orderBy('start_time', 'asc')
+                ->get();
+        }
+
+        // 3. ビューにデータを渡す
+        return view('attendance.detail', compact('user', 'date', 'attendance', 'rests'));
+    }
+    //動作確認用
+    public function report()
+    {
+        // 張りぼてのビューを返すだけ
+        return view('reports.index');
+    }
 }
