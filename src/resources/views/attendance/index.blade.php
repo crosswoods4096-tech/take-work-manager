@@ -11,7 +11,7 @@
     <div class="attendance-list-wrapper">
 
         {{-- 1. タイトル（左寄せ） --}}
-        <h2 class="page-title">｜勤怠一覧</h2>
+        <h2 class="page-title">勤怠一覧</h2>
 
         {{-- 2. 月移動ナビゲーション（中央に年月、左右にリンク） --}}
         <div class="month-navigation">
@@ -75,3 +75,4 @@
 
     </div>
 </div>
+@endsection

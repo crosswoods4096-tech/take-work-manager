@@ -10,7 +10,7 @@
     <div class="attendance-detail-wrapper">
 
         {{-- 1. タイトル（左寄せ） --}}
-        <h2 class="page-title">｜勤怠詳細</h2>
+        <h2 class="page-title">勤怠詳細</h2>
 
         {{-- 修正申請フォーム（ボタンを押したらPOST送信する構造にします） --}}
         <form action="{{ route('attendance.update', ['date' => $date]) }}" method="POST">
@@ -95,3 +95,4 @@
         </form>
     </div>
 </div>
+@endsection
