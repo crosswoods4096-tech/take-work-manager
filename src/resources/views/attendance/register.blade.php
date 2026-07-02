@@ -82,3 +82,4 @@
     }
     setInterval(updateClock, 1000);
 </script>
+@endsection
