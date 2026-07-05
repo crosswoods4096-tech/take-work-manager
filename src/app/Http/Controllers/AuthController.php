@@ -3,68 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // 会員登録画面の表示
+    /**
+     * 会員登録画面の表示
+     */
     public function showRegister()
     {
-        return view('auth.register'); // ※ビューの保存場所に合わせて変更してください
+        return view('auth.register');
     }
 
-    // 会員登録処理
-    public function register(Request $request)
+    /**
+     * 会員登録処理
+     * 引数を Request から 「RegisterRequest」 に変更します！
+     */
+    public function register(RegisterRequest $request)
     {
-        // 1. バリデーション
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'], // confirmed で password_confirmation と一致するかチェック
-        ], [
-            // エラーメッセージの日本語カスタマイズ（必要に応じて調整してください）
-            'name.required' => 'ユーザー名を入力してください。',
-            'email.required' => 'メールアドレスを入力してください。',
-            'email.email' => '正しいメールアドレスの形式で入力してください。',
-            'email.unique' => 'このメールアドレスは既に登録されています。',
-            'password.required' => 'パスワードを入力してください。',
-            'password.min' => 'パスワードは8文字以上で入力してください。',
-            'password.confirmed' => 'パスワードが一致しません。',
-        ]);
+        // ここに到達した時点で、RegisterRequest 内のバリデーション（要件の文言）は通過しています。
 
-        // 2. ユーザー作成
+        // 1. ユーザー作成 (バリデーション済みのデータを使用)
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // パスワードは必ずハッシュ化
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password), // パスワードをハッシュ化
         ]);
 
-        // 3. 自動ログインして勤怠登録画面へリダイレクト
+        // 2. 自動ログインして勤怠登録画面へリダイレクト
         Auth::login($user);
 
         return redirect()->route('attendance.register');
     }
 
-    // ログイン画面の表示
+    /**
+     * ログイン画面の表示
+     */
     public function showLogin()
     {
-        return view('auth.login'); // ※ビューの保存場所に合わせて変更してください
+        return view('auth.login');
     }
 
-    // ログイン処理
-    public function login(Request $request)
+    /**
+     * ログイン処理
+     */
+    public function login(LoginRequest $request)
     {
-        // 1. バリデーション
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ], [
-            'email.required' => 'メールアドレスを入力してください。',
-            'email.email' => '正しいメールアドレスの形式で入力してください。',
-            'password.required' => 'パスワードを入力してください。',
-        ]);
+        // ここに到達した時点で、すでにLoginRequestのバリデーションは通過しています。
+
+        // 1. 認証に必要なデータ（emailとpassword）のみを取得
+        $credentials = $request->only('email', 'password');
 
         // 2. ログイン認証の試行
         if (Auth::attempt($credentials)) {
@@ -77,11 +69,13 @@ class AuthController extends Controller
 
         // 3. 認証失敗：メールアドレスの欄にエラーメッセージを戻す
         return back()->withErrors([
-            'email' => 'ログイン情報が正しくありません。',
+            'email' => 'ログイン情報が登録されていません。',
         ])->withInput($request->only('email'));
     }
 
-    // ログアウト処理
+    /**
+     * ログアウト処理
+     */
     public function logout(Request $request)
     {
         Auth::logout();
