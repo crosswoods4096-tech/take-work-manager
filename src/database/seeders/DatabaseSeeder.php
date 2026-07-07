@@ -54,8 +54,8 @@ class DatabaseSeeder extends Seeder
                 }
 
                 // 拘束（勤務）時間の計算
-                $totalWorkingSeconds = $checkIn->diffInSeconds($checkOut);
-                $workingHoursStr = sprintf('%02d:%02d:%02d', floor($totalWorkingSeconds / 3600), floor(($totalWorkingSeconds % 3600) / 60), $totalWorkingSeconds % 60);
+
+                $totalWorkingMinutes = $checkIn->diffInMinutes($checkOut);
 
                 // 勤怠レコードの作成
                 $attendance = Attendance::factory()->create([
@@ -63,8 +63,8 @@ class DatabaseSeeder extends Seeder
                     'date' => $date->format('Y-m-d'),
                     'check_in' => $checkIn->format('H:i:s'),
                     'check_out' => $checkOut->format('H:i:s'),
-                    'total_working_hours' => $workingHoursStr,
-                    'total_break_time' => '01:00:00', // 一旦1時間固定
+                    'total_working_hours' => $totalWorkingMinutes,
+                    'total_break_time' => 60, // 一旦1時間固定
                 ]);
 
                 // 休憩レコードの紐付け（12:00 ~ 13:00）
@@ -78,11 +78,13 @@ class DatabaseSeeder extends Seeder
                 if (rand(1, 100) <= 10) {
                     Application::factory()->create([
                         'user_id' => $user->id,
-                        'target_date' => $date->format('Y-m-d'),
+                        'attendance_id' => $attendance->id, // 👈 追加：どの勤務に対する申請かを紐付ける
+                        'application_date' => $date->format('Y-m-d'), // 
                         'status' => 'pending',
                         'requested_check_in' => '09:00:00',
                         'requested_check_out' => '18:00:00',
                         'reason' => '打刻を忘れてしまったため、通常の勤務時間への修正をお願いします。',
+
                     ]);
                 }
 
@@ -90,11 +92,13 @@ class DatabaseSeeder extends Seeder
                 if (rand(1, 100) <= 5) {
                     Application::factory()->create([
                         'user_id' => $user->id,
-                        'target_date' => $date->format('Y-m-d'),
+                        'attendance_id' => $attendance->id, // 👈 追加：どの勤務に対する申請かを紐付ける
+                        'application_date' => $date->format('Y-m-d'),
                         'status' => 'approved',
                         'requested_check_in' => '09:00:00',
                         'requested_check_out' => '18:00:00',
                         'reason' => '電車遅延による打刻修正です。',
+
                     ]);
                 }
             }

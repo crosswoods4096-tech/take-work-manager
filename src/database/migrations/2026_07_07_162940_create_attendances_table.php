@@ -15,19 +15,19 @@ class CreateAttendancesTable extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            // usersテーブルとの紐付け
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->date('date')->comment('勤務日');
-            $table->time('check_in')->comment('出勤時間');
-            $table->time('check_out')->nullable()->comment('退勤時間');
-            // 追加：総勤務時間と総休憩時間
-            // ※退勤時や休憩終了時に計算して保存するため、初期値はnullableにするかデフォルト値を設定します
-            $table->time('total_working_hours')->nullable()->comment('総勤務時間');
-            $table->time('total_break_time')->nullable()->comment('総休憩時間');
+            $table->date('date');
+            $table->Time('check_in')->nullable();
+            $table->Time('check_out')->nullable();
+
+
+            // 整数（integer）型で、初期値は0、NULLも許可しておきます
+            $table->integer('total_working_hours')->default(0)->nullable()->comment('拘束時間（分単位）');
+            $table->integer('total_break_time')->default(0)->nullable()->comment('総休憩時間（分単位）');
+
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      *
