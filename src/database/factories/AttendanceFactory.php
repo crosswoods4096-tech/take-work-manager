@@ -17,8 +17,8 @@ class AttendanceFactory extends Factory
             'date' => $this->faker->date(),
             'check_in' => '09:00:00',
             'check_out' => '18:00:00',
-            'total_working_hours' => '09:00:00',
-            'total_break_time' => '01:00:00',
+            'total_working_hours' => 540,
+            'total_break_time' => 60,
         ];
     }
 }

@@ -12,7 +12,7 @@
         {{-- 1. タイトル（左寄せ） --}}
         <h2 class="page-title">勤怠詳細</h2>
 
-        {{-- 修正申請フォーム（ボタンを押したらPOST送信する構造にします） --}}
+        {{-- 修正申請フォーム --}}
         <form action="{{ route('attendance.update', ['date' => $date]) }}" method="POST">
             @csrf
 
@@ -50,33 +50,23 @@
                     </td>
                 </tr>
 
-                {{-- 休憩1 --}}
+                {{-- 💡 休憩（ループ処理で数に関わらずすべて自動表示） --}}
+                @foreach ($rests as $index => $rest)
                 <tr>
-                    <th>休憩</th>
+                    {{-- 最初の休憩だけ「休憩」、2回目以降は「休憩2」「休憩3」と表示を切り替えるおまけ付き --}}
+                    <th>{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</th>
                     <td>
                         <div class="time-range-group">
-                            <input type="time" name="rest_start_1" class="time-input"
-                                value="{{ isset($rests[0]) ? \Carbon\Carbon::parse($rests[0]->start_time)->format('H:i') : '' }}">
+                            {{-- 💡 name属性を「rests[休憩のID][start_time]」の形式にして、複数の休憩データを綺麗に送信できるようにします --}}
+                            <input type="time" name="rests[{{ $rest->id }}][start_time]" class="time-input"
+                                value="{{ $rest->start_time ? \Carbon\Carbon::parse($rest->start_time)->format('H:i') : '' }}">
                             <span class="range-separator">～</span>
-                            <input type="time" name="rest_end_1" class="time-input"
-                                value="{{ isset($rests[0]->end_time) ? \Carbon\Carbon::parse($rests[0]->end_time)->format('H:i') : '' }}">
+                            <input type="time" name="rests[{{ $rest->id }}][end_time]" class="time-input"
+                                value="{{ $rest->end_time ? \Carbon\Carbon::parse($rest->end_time)->format('H:i') : '' }}">
                         </div>
                     </td>
                 </tr>
-
-                {{-- 休憩2 --}}
-                <tr>
-                    <th>休憩2</th>
-                    <td>
-                        <div class="time-range-group">
-                            <input type="time" name="rest_start_2" class="time-input"
-                                value="{{ isset($rests[1]) ? \Carbon\Carbon::parse($rests[1]->start_time)->format('H:i') : '' }}">
-                            <span class="range-separator">～</span>
-                            <input type="time" name="rest_end_2" class="time-input"
-                                value="{{ isset($rests[1]->end_time) ? \Carbon\Carbon::parse($rests[1]->end_time)->format('H:i') : '' }}">
-                        </div>
-                    </td>
-                </tr>
+                @endforeach
 
                 {{-- 備考（ボックス形式） --}}
                 <tr>

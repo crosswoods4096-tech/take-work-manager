@@ -123,3 +123,12 @@
 .btn-submit:hover {
     background-color: #333333;
 }
+.time-input {
+    width: 100px; /* 👈 文字が途切れないゆとりのある幅に固定します */
+    padding: 8px; /* 内側の余白 */
+    font-size: 16px; /* 文字の大きさ */
+    text-align: center; /* 文字を中央寄せにして見やすくする */
+    border: 1px solid #ccc; /* 枠線の色 */
+    border-radius: 4px; /* 角を少し丸く */
+    box-sizing: border-box;
+}

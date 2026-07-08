@@ -50,17 +50,18 @@
                         {{-- 退勤時刻 --}}
                         <td>{{ $record && $record->check_out ? \Carbon\Carbon::parse($record->check_out)->format('H:i') : '-' }}</td>
 
-                        {{-- 休憩（合計時間） --}}
-                        <td>{{ $record && $record->total_break_time ? \Carbon\Carbon::parse($record->total_break_time)->format('H:i') : '-' }}</td>
-
-                        {{-- 合計（実働時間） --}}
+                        {{-- 💡 休憩（合計時間）：分単位の整数を「H:i」形式に変換して表示 --}}
                         <td>
-                            @if($record && $record->total_working_hours)
-                            {{-- 実働時間は、後ほどコントローラーやモデル側で計算した値を表示する想定です --}}
-                            {{ $record->actual_working_hours ?? '-' }}
+                            @if($record && $record->total_break_time !== null)
+                            {{ sprintf('%02d:%02d', floor($record->total_break_time / 60), $record->total_break_time % 60) }}
                             @else
                             -
                             @endif
+                        </td>
+
+                        {{-- 💡 合計（実働時間）：コントローラで計算済みの値をそのまま表示 --}}
+                        <td>
+                            {{ $record->actual_working_hours ?? '-' }}
                         </td>
 
                         {{-- 詳細リンク --}}
