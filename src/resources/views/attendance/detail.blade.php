@@ -12,6 +12,24 @@
         {{-- 1. タイトル（左寄せ） --}}
         <h2 class="page-title">勤怠詳細</h2>
 
+        {{-- 💡 追記：コントローラからのカスタムエラーメッセージ（session('error')）を表示する --}}
+        @if (session('error'))
+        <div class="alert alert-danger" style="color: red; background-color: #fde8e8; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #f8b4b4;">
+            {{ session('error') }}
+        </div>
+        @endif
+
+        {{-- 💡 参考：通常のバリデーションエラー（入力不備など）も表示したい場合はこちらも便利です --}}
+        @if ($errors->any())
+        <div class="alert alert-danger" style="color: red; background-color: #fde8e8; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #f8b4b4;">
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         {{-- 修正申請フォーム --}}
         <form action="{{ route('attendance.update', ['date' => $date]) }}" method="POST">
             @csrf

@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
     // 勤怠詳細画面（表示はAttendanceControllerが担当）
     Route::get('/attendance/detail/{date}', [AttendanceController::class, 'detail'])->name('attendance.detail');
 
-    // 変更：ポスト先を ApplicationController に切り替え
-    Route::post('/attendance/detail/{date}/update', [ApplicationController::class, 'storeCorrection'])->name('attendance.update');
+    // 💡 勤怠詳細からの修正申請（保存処理）
+    
+    Route::post('/attendance/{date}', [AttendanceController::class, 'update'])->name('attendance.update');
 });

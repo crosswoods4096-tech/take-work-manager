@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\Rest;
+use App\Models\Application;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -249,5 +250,65 @@ class AttendanceController extends Controller
     public function report()
     {
         return view('reports.index');
+    }
+    // 💡 勤怠詳細画面から「修正」ボタンが押されたときの保存処理
+    public function update(Request $request, $date)
+    {
+        $user = Auth::user();
+
+        // 1. 入力値のバリデーション（チェック）
+        $request->validate([
+            'check_in' => 'required|date_format:H:i',
+            'check_out' => 'required|date_format:H:i|after:check_in',
+            'remarks' => 'required|string|max:255', // 備考（申請理由）は必須
+            'rests' => 'nullable|array',
+            'rests.*.start_time' => 'required_with:rests.*.end_time|date_format:H:i',
+            'rests.*.end_time' => 'required_with:rests.*.start_time|date_format:H:i|after:rests.*.start_time',
+        ], [
+            'check_out.after' => '退勤時刻は出勤時刻より後の時間を入力してください。',
+            'remarks.required' => '修正理由（備考）を入力してください。',
+        ]);
+
+        // 2. 元になる当日の勤怠レコード（既存データ）を取得
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('date', $date)
+            ->first();
+
+        if (!$attendance) {
+            return redirect()->back()->with('error', '元となる勤怠データが見つかりません。');
+        }
+
+        // ------------------------------------------------------------
+        // 💡 3. 【仕様変更】すでに同じ日付で「承認待ち」の申請がないかチェック
+        // ------------------------------------------------------------
+        $isAlreadyApplied = Application::where('user_id', $user->id)
+            ->where('application_date', $date)
+            ->where('status', 'pending')
+            ->exists(); // 存在するなら true、なければ false
+
+        if ($isAlreadyApplied) {
+            // すでに申請がある場合は、上書きせずに元の画面へエラーで戻す
+            return redirect()->back()->with('error', 'この日付の修正申請はすでに提出され、承認待ちです。何度も申請することはできません。');
+        }
+
+        // 💡 4. 重複がなければ、純粋に「新規作成（create）」する
+        $application = Application::create([
+            'user_id' => $user->id,
+            'attendance_id' => $attendance->id,
+            'application_date' => $date,
+            'status' => 'pending',
+            'requested_check_in' => $request->check_in . ':00',
+            'requested_check_out' => $request->check_out . ':00',
+            'reason' => $request->remarks,
+        ]);
+
+        // 5. 休憩の修正申請データの保存（テーブル：application_rests）
+        // 💡 新規作成のみになったので、ここの delete() 処理は不要になります
+        if ($request->has('rests')) {
+            foreach ($request->rests as $restId => $restTimes) {
+            }
+        }
+        // 6. 申請完了後、一覧画面にリダイレクト
+        return redirect()->route('attendance.index')->with('success', '勤怠の修正申請を提出しました（承認待ち）。');
     }
 }
