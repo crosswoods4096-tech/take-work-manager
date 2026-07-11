@@ -75,22 +75,39 @@
                     <th>{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</th>
                     <td>
                         <div class="time-range-group">
-                            {{-- 💡 name属性を「rests[休憩のID][start_time]」の形式にして、複数の休憩データを綺麗に送信できるようにします --}}
+                            {{-- 💡 old() を追加して、エラー時も入力が残るようにしています --}}
                             <input type="time" name="rests[{{ $rest->id }}][start_time]" class="time-input"
-                                value="{{ $rest->start_time ? \Carbon\Carbon::parse($rest->start_time)->format('H:i') : '' }}">
+                                value="{{ old('rests.'.$rest->id.'.start_time', $rest->start_time ? \Carbon\Carbon::parse($rest->start_time)->format('H:i') : '') }}">
                             <span class="range-separator">～</span>
                             <input type="time" name="rests[{{ $rest->id }}][end_time]" class="time-input"
-                                value="{{ $rest->end_time ? \Carbon\Carbon::parse($rest->end_time)->format('H:i') : '' }}">
+                                value="{{ old('rests.'.$rest->id.'.end_time', $rest->end_time ? \Carbon\Carbon::parse($rest->end_time)->format('H:i') : '') }}">
                         </div>
                     </td>
                 </tr>
                 @endforeach
 
+                {{-- 💡 ここを追記：数が増える時のための「新しい休憩枠」を1つ余分に用意 --}}
+                <tr class="new-rest-row" style="background-color: #fafafa;">
+                    <th>
+                        <span style="font-size: 0.9em; color: #666; font-weight: normal;">➕ 休憩を追加</span>
+                    </th>
+                    <td>
+                        <div class="time-range-group">
+                            {{-- 新規追加分は、IDの代わりに 'new' という固定のキーで送信します --}}
+                            <input type="time" name="rests[new][start_time]" class="time-input"
+                                value="{{ old('rests.new.start_time') }}">
+                            <span class="range-separator">～</span>
+                            <input type="time" name="rests[new][end_time]" class="time-input"
+                                value="{{ old('rests.new.end_time') }}">
+                        </div>
+                    </td>
+                </tr>
+
                 {{-- 備考（ボックス形式） --}}
                 <tr>
                     <th>備考</th>
                     <td>
-                        <textarea name="remarks" class="remarks-textarea" rows="4" placeholder="修正理由や備考を入力してください">{{ $attendance->remarks ?? '' }}</textarea>
+                        <textarea name="remarks" class="remarks-textarea" rows="4" placeholder="修正理由や備考を入力してください">{{ old('remarks', $attendance->remarks ?? '') }}</textarea>
                     </td>
                 </tr>
             </table>

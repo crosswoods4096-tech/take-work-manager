@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CorrectionRequest;
 use Illuminate\Http\Request;
 use App\Models\Application;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
 {
-    // 勤怠詳細画面から「修正申請」がPOSTされたときの処理
-    public function storeCorrection(Request $request, $date)
+    // 💡 2. 引数の「Request」を「CorrectionRequest」に書き換えます
+    public function storeCorrection(CorrectionRequest $request, $date)
     {
-        // 1. バリデーション
-        $request->validate([
-            'remarks' => ['required', 'string', 'max:1000'],
-        ], [
-            'remarks.required' => '修正を申請する場合は、備考欄に申請理由を入力してください。',
-        ]);
+        $userId = Auth::id();
+
+        // ❌ コントローラ内の $request->validate([...]) の塊は丸ごと削除します
+        // （ここに到達した時点で、すでにステップ1のバリデーションを通過しています）
 
         // 2. 二重申請の防止
-        $alreadyApplied = Application::where('user_id', $user = Auth::id()) // Auth::id()でIDのみスマートに取得
-            ->where('target_date', $date)
+        $alreadyApplied = Application::where('user_id', $userId)
+            ->where('application_date', $date)
             ->where('status', 'pending')
             ->exists();
 
@@ -28,20 +28,43 @@ class ApplicationController extends Controller
             return redirect()->back()->with('error', 'この日付に対する修正申請は既に提出され、承認待ちです。');
         }
 
+        // 元になる当日の勤怠レコードを取得
+        $attendance = Attendance::where('user_id', $userId)
+            ->where('date', $date)
+            ->first();
+
+        if (!$attendance) {
+            return redirect()->back()->with('error', '元となる勤怠データが見つかりません。');
+        }
+
         // 3. applications テーブルに保存
-        Application::create([
-            'user_id'              => Auth::id(),
-            'target_date'          => $date,
+        $application = Application::create([
+            'user_id'              => $userId,
+            'attendance_id'        => $attendance->id,
+            'application_date'     => $date,
             'type'                 => 'fix',
             'status'               => 'pending',
-            'requested_check_in'   => $request->check_in,
-            'requested_check_out'  => $request->check_out,
-            'requested_rest_start_1' => $request->rest_start_1,
-            'requested_rest_end_1'   => $request->rest_end_1,
-            'requested_rest_start_2' => $request->rest_start_2,
-            'requested_rest_end_2'   => $request->rest_end_2,
+            'requested_check_in'   => $request->check_in . ':00',
+            'requested_check_out'  => $request->check_out . ':00',
             'reason'               => $request->remarks,
         ]);
+
+        // 4. 休憩の修正申請データを「何個でも（新枠も含む）」ループで保存
+        if ($request->has('rests')) {
+            foreach ($request->rests as $restId => $restTimes) {
+                if (!empty($restTimes['start_time']) && !empty($restTimes['end_time'])) {
+
+                    // 💡 もし新規追加枠（キーが 'new'）なら、rest_id は null にする
+                    $actualRestId = ($restId === 'new') ? null : $restId;
+
+                    $application->applicationRests()->create([
+                        'rest_id'              => $actualRestId, // 💡 ここに判定したIDを入れる
+                        'requested_start_time' => $restTimes['start_time'] . ':00',
+                        'requested_end_time'   => $restTimes['end_time'] . ':00',
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('attendance.index')->with('success', '修正申請を提出しました。');
     }

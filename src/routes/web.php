@@ -44,6 +44,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/detail/{date}', [AttendanceController::class, 'detail'])->name('attendance.detail');
 
     // 💡 勤怠詳細からの修正申請（保存処理）
-    
-    Route::post('/attendance/{date}', [AttendanceController::class, 'update'])->name('attendance.update');
+
+    Route::post('/attendance/{date}', [ApplicationController::class, 'storeCorrection'])->name('attendance.update');
 });
