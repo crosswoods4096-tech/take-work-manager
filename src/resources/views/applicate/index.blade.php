@@ -10,15 +10,15 @@
     <div class="application-list-wrapper">
 
         {{-- 1. タイトル（左寄せ） --}}
-        <h2 class="page-title">｜申請一覧</h2>
+        <h2 class="page-title">申請一覧</h2>
 
         {{-- 2. 承認待ち・承認済み切り替えタブ --}}
         <div class="tab-navigation">
-            <a href="{{ route('applications.index', ['tab' => 'pending']) }}"
+            <a href="{{ route('applicate.index', ['tab' => 'pending']) }}"
                 class="tab-item {{ $activeTab === 'pending' ? 'active' : '' }}">
                 承認待ち
             </a>
-            <a href="{{ route('applications.index', ['tab' => 'approved']) }}"
+            <a href="{{ route('applicate.index', ['tab' => 'approved']) }}"
                 class="tab-item {{ $activeTab === 'approved' ? 'active' : '' }}">
                 承認済み
             </a>
@@ -67,7 +67,7 @@
 
                         {{-- 詳細リンク（その日付の勤怠詳細画面へ遷移） --}}
                         <td>
-                            <a href="{{ route('attendance.detail', ['date' => $app->target_date]) }}" class="detail-link">詳細</a>
+                            <a href="{{ route('attendance.detail', ['date' => now()->format('Y-m-d')]) }}">詳細</a>
                         </td>
                     </tr>
                     @empty

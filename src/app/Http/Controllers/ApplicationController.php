@@ -66,7 +66,7 @@ class ApplicationController extends Controller
             }
         }
 
-        return redirect()->route('attendance.index')->with('success', '修正申請を提出しました。');
+        return redirect()->route('applicate.index')->with('success', '修正申請を提出しました。');
     }
     // 申請一覧画面の処理
     public function index(Request $request)
@@ -75,8 +75,8 @@ class ApplicationController extends Controller
         $activeTab = $request->query('tab', 'pending');
 
         // 2. ログイン中のユーザーの申請データを取得
-        // Eager Loading（with('user')）を使って、名前の表示を高速化します
-        $query = Application::where('user_id', Auth::id())->with('user');
+        // 💡 複数休憩データ（applicationRests）とユーザー情報を同時に Eager Loading して効率化
+        $query = Application::where('user_id', Auth::id())->with(['user', 'applicationRests']);
 
         if ($activeTab === 'approved') {
             // 「承認済み」タブの場合は、approved（承認）または rejected（却下）のデータを取得
@@ -90,8 +90,7 @@ class ApplicationController extends Controller
                 ->get();
         }
 
-        // 3. ご報告いただいた「applicate」フォルダのビューに変数を入れて返す
+        // 3. フォルダ名「applicate.index」に合わせたビューを返す
         return view('applicate.index', compact('applications', 'activeTab'));
     }
-    // 💡 今後、ここに「申請のキャンセル（destroy）」などを追記していきます！
 }

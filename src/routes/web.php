@@ -38,8 +38,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.index');
     // 👇 これを追記：レポート画面用の張りぼてルート
     Route::get('/report', [AttendanceController::class, 'report'])->name('reports.index');
-    // 申請一覧画面用のルート
-    Route::get('/application/list', [ApplicationController::class, 'index'])->name('applicate.index');
+    // 申請一覧画面の表示 (GET)
+    Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])->name('applicate.index');
     // 勤怠詳細画面（表示はAttendanceControllerが担当）
     Route::get('/attendance/detail/{date}', [AttendanceController::class, 'detail'])->name('attendance.detail');
 
