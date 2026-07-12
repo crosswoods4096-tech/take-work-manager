@@ -73,7 +73,11 @@
 
                     {{-- 詳細リンク（のちのステップ③で使います） --}}
                     <td style="padding: 12px 15px;">
-                        <a href="#" style="color: #007bff; text-decoration: none; font-size: 0.9em;">詳細</a>
+                        @if ($attendance)
+                        <a href="{{ route('admin.attendance.detail', ['id' => $attendance->id]) }}" style="color: #007bff; text-decoration: none; font-size: 0.9em; font-weight: bold;">詳細</a>
+                        @else
+                        <span style="color: #ccc; font-size: 0.9em;">データなし</span>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

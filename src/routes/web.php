@@ -66,4 +66,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     // ② 日次勤怠一覧画面（管理者のトップページ）
     Route::get('/attendance/daily', [AdminAttendanceController::class, 'dailyList'])->name('admin.attendance.daily');
+    //管理者による勤怠詳細の確認・変更
+    Route::get('/attendance/detail/{id}', [AdminAttendanceController::class, 'showDetail'])->name('admin.attendance.detail');
+    Route::post('/attendance/detail/{id}', [AdminAttendanceController::class, 'updateAttendance'])->name('admin.attendance.update');
 });
