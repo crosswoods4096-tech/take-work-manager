@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Attendance;
+use App\Models\Application;
 use Carbon\Carbon;
 
 class AdminAttendanceController extends Controller
@@ -114,5 +115,171 @@ class AdminAttendanceController extends Controller
         $formattedDate = \Carbon\Carbon::parse($attendance->date)->format('Y-m-d');
         return redirect()->route('admin.attendance.daily', ['date' => $formattedDate])
             ->with('success', "{$attendance->user->name}さんの勤怠データを修正しました。");
+    }
+    /**
+     * ④ スタッフ一覧画面の表示
+     */
+    public function staffList()
+    {
+        // 管理者以外の「一般スタッフ」を全員取得する
+        $staffs = User::where('role', 'general')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('admin.staff.index', compact('staffs'));
+    }
+    /**
+     * ⑤ スタッフごとの月次勤怠一覧表示
+     */
+    public function staffMonthlyAttendance(Request $request, $id)
+    {
+        // 1. 対象のスタッフ情報を取得
+        $staff = User::where('role', 'general')->findOrFail($id);
+
+        // 2. 表示したい「月」を取得（デフォルトは当月）
+        $monthParam = $request->query('month');
+        if ($monthParam) {
+            $currentMonth = Carbon::parse($monthParam)->startOfMonth();
+        } else {
+            $currentMonth = Carbon::today()->startOfMonth();
+        }
+
+        // 前月・次月のパラメータ用文字列
+        $prevMonth = $currentMonth->copy()->subMonth()->format('Y-m');
+        $nextMonth = $currentMonth->copy()->addMonth()->format('Y-m');
+
+        // 3. 1ヶ月分の日付配列を生成
+        $daysInMonth = [];
+        $daysCount = $currentMonth->daysInMonth;
+        for ($i = 0; $i < $daysCount; $i++) {
+            $daysInMonth[] = $currentMonth->copy()->addDays($i);
+        }
+
+        $startOfMonth = $currentMonth->copy()->startOfMonth()->format('Y-m-d');
+        $endOfMonth = $currentMonth->copy()->endOfMonth()->format('Y-m-d');
+
+        // 4. そのスタッフの該当月の勤怠データをまとめて取得
+        $attendances = Attendance::where('user_id', $staff->id)
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->get()
+            ->keyBy('date');
+
+        // 5. 実働時間の計算（分単位 ➔ H:i 形式に変換）
+        foreach ($attendances as $record) {
+            if ($record->total_working_hours !== null) {
+                $workingMin = $record->total_working_hours;
+                $breakMin = $record->total_break_time ?? 0;
+                $actualMin = $workingMin - $breakMin;
+
+                if ($actualMin > 0) {
+                    $hours = floor($actualMin / 60);
+                    $minutes = $actualMin % 60;
+                    $record->actual_working_hours = sprintf('%02d:%02d', $hours, $minutes);
+                } else {
+                    $record->actual_working_hours = '00:00';
+                }
+            }
+        }
+
+        return view('admin.staff.attendance', compact(
+            'staff',
+            'currentMonth',
+            'prevMonth',
+            'nextMonth',
+            'daysInMonth',
+            'attendances'
+        ));
+    }
+    /**
+     * ⑥ 修正申請一覧画面の表示
+     */
+    public function applicationList(Request $request)
+    {
+        // タブの切り替え（デフォルトは承認待ち 'pending'）
+        $activeTab = $request->query('tab', 'pending');
+
+        $query = Application::with(['user']);
+
+        if ($activeTab === 'approved') {
+            $applications = $query->whereIn('status', ['approved', 'rejected'])
+                ->orderBy('updated_at', 'desc')->get();
+        } else {
+            $applications = $query->where('status', 'pending')
+                ->orderBy('created_at', 'desc')->get();
+        }
+
+        return view('admin.applicate.index', compact('applications', 'activeTab'));
+    }
+
+    /**
+     * ⑦ 修正申請詳細画面の表示
+     */
+    public function showApplication($id)
+    {
+        // 申請データと、元の勤怠データ、申請された休憩データを取得
+        // 💡 以前作成した applicationRests リレーションを利用します
+        $application = Application::with(['user', 'attendance', 'applicationRests'])->findOrFail($id);
+
+        return view('admin.applicate.show', compact('application'));
+    }
+
+    /**
+     * ⑦ 修正申請の「承認」処理
+     */
+    public function approveApplication($id)
+    {
+        $application = Application::with('applicationRests')->findOrFail($id);
+        $attendance = Attendance::findOrFail($application->attendance_id);
+
+        // 1. 申請された出退勤時間を、本番の勤怠レコードに上書き反映
+        $attendance->update([
+            'check_in'  => $application->requested_check_in,
+            'check_out' => $application->requested_check_out,
+        ]);
+
+        // 2. 既存の本番休憩データを一旦削除し、申請された休憩データに丸ごと差し替える
+        $attendance->rests()->delete();
+        foreach ($application->applicationRests as $appRest) {
+            $attendance->rests()->create([
+                'start_time' => $appRest->start_time,
+                'end_time'   => $appRest->end_time,
+            ]);
+        }
+
+        // 3. 【リアルタイム再計算】本番の勤怠データを基に総実働・総休憩を「分」で計算して更新
+        $attendance->refresh();
+        $checkIn  = \Carbon\Carbon::parse($attendance->check_in);
+        $checkOut = \Carbon\Carbon::parse($attendance->check_out);
+        $totalWorkingMinutes = $checkIn->diffInMinutes($checkOut);
+
+        $totalBreakMinutes = 0;
+        foreach ($attendance->rests as $rest) {
+            if ($rest->start_time && $rest->end_time) {
+                $totalBreakMinutes += \Carbon\Carbon::parse($rest->start_time)->diffInMinutes(\Carbon\Carbon::parse($rest->end_time));
+            }
+        }
+
+        $attendance->update([
+            'total_working_hours' => $totalWorkingMinutes,
+            'total_break_time'    => $totalBreakMinutes,
+        ]);
+
+        // 4. 申請ステータスを「承認済み」に変更
+        $application->update(['status' => 'approved']);
+
+        return redirect()->route('admin.application.index')->with('success', '申請を承認し、勤怠データに反映しました。');
+    }
+
+    /**
+     * ⑦ 修正申請の「却下」処理
+     */
+    public function rejectApplication($id)
+    {
+        $application = Application::findOrFail($id);
+
+        // ステータスを「却下」に変更（本番の勤怠データは弄らない）
+        $application->update(['status' => 'rejected']);
+
+        return redirect()->route('admin.application.index')->with('success', '申請を却下しました。');
     }
 }

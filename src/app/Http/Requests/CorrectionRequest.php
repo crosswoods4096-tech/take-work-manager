@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Carbon\Carbon;
 
 class CorrectionRequest extends FormRequest
 {
@@ -15,36 +16,76 @@ class CorrectionRequest extends FormRequest
     }
 
     /**
-     * 💡 1. バリデーションルール本体
+     * 💡 1. 基本的なフォーマットと必須チェックのみをルールで行う
      */
     public function rules(): array
     {
         return [
             'check_in'  => ['required', 'date_format:H:i'],
-            // ① 退勤が出勤より後であることをチェック（after:check_in）
-            'check_out' => ['required', 'date_format:H:i', 'after:check_in'],
-
-            // ④ 備考欄（理由）の必須チェック
+            'check_out' => ['required', 'date_format:H:i'],
             'remarks'   => ['required', 'string', 'max:1000'],
-
             'rests'     => ['nullable', 'array'],
-            // ② 休憩開始は「出勤より後（after:check_in）」かつ「退勤より前（before:check_out）」
-            'rests.*.start_time' => [
-                'required_with:rests.*.end_time',
-                'date_format:H:i',
-                'after:check_in',
-                'before:check_out'
-            ],
-            // ②&③ 休憩終了は「休憩開始より後（after:rests.*.start_time）」かつ「退勤より前（before:check_out）」
-            'rests.*.end_time'   => [
-                'required_with:rests.*.start_time',
-                'date_format:H:i',
-                'after:rests.*.start_time',
-                'before:check_out'
-            ],
+            'rests.*.start_time' => ['nullable', 'required_with:rests.*.end_time', 'date_format:H:i'],
+            'rests.*.end_time'   => ['nullable', 'required_with:rests.*.start_time', 'date_format:H:i'],
         ];
     }
 
+    /**
+     * 💡 2. 複雑な時間の前後関係の論理チェックは、ここで確実に判定する
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $checkInStr  = $this->input('check_in');
+            $checkOutStr = $this->input('check_out');
+
+            // 出退勤時間のパースを試みる
+            if ($checkInStr && $checkOutStr) {
+                try {
+                    $checkIn  = Carbon::createFromFormat('H:i', $checkInStr);
+                    $checkOut = Carbon::createFromFormat('H:i', $checkOutStr);
+
+                    // ① 退勤が出勤より前または同じ場合
+                    if (!$checkOut->greaterThan($checkIn)) {
+                        $validator->errors()->add('check_out', '出勤時間もしくは退勤時間が不適切な値です。');
+                        return; // 出退勤自体がおかしい場合は以降の休憩チェックをスキップ
+                    }
+
+                    // 休憩データの検証
+                    $rests = $this->input('rests', []);
+                    if (is_array($rests)) {
+                        foreach ($rests as $key => $rest) {
+                            $startStr = $rest['start_time'] ?? null;
+                            $endStr   = $rest['end_time'] ?? null;
+
+                            // 片方だけ入力されているケースはルール側（required_with）で弾くので、両方ある場合のみ論理検証
+                            if ($startStr && $endStr) {
+                                $start = Carbon::createFromFormat('H:i', $startStr);
+                                $end   = Carbon::createFromFormat('H:i', $endStr);
+
+                                // ② 休憩終了が休憩開始より前または同じ場合
+                                if (!$end->greaterThan($start)) {
+                                    $validator->errors()->add("rests.{$key}.end_time", '休憩時間が不適切な値です。');
+                                }
+
+                                // ③ 休憩開始が出勤より前、あるいは退勤より後の場合
+                                if (!$start->greaterThan($checkIn) || !$start->lessThan($checkOut)) {
+                                    $validator->errors()->add("rests.{$key}.start_time", '休憩時間が不適切な値です。');
+                                }
+
+                                // ④ 休憩終了が退勤以降の場合
+                                if (!$end->lessThan($checkOut)) {
+                                    $validator->errors()->add("rests.{$key}.end_time", '休憩時間もしくは退勤時間が不適切な値です。');
+                                }
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // 時刻パースエラー時は基本ルール側が検知するので何もしない
+                }
+            }
+        });
+    }
     /**
      * 💡 2. ご指定いただいたエラーメッセージへの差し替え
      */

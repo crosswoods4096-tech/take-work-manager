@@ -69,4 +69,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     //管理者による勤怠詳細の確認・変更
     Route::get('/attendance/detail/{id}', [AdminAttendanceController::class, 'showDetail'])->name('admin.attendance.detail');
     Route::post('/attendance/detail/{id}', [AdminAttendanceController::class, 'updateAttendance'])->name('admin.attendance.update');
+    //スタッフ一覧確認ルート
+    Route::get('/staff', [AdminAttendanceController::class, 'staffList'])->name('admin.staff.index');
+    //スタッフごとの月次勤怠一覧ルート
+    Route::get('/staff/attendance/{id}', [AdminAttendanceController::class, 'staffMonthlyAttendance'])->name('admin.staff.attendance');
+    //修正申請の一覧・承認・却下ルート
+    Route::get('/applications', [AdminAttendanceController::class, 'applicationList'])->name('admin.application.index');
+    Route::get('/applications/{id}', [AdminAttendanceController::class, 'showApplication'])->name('admin.application.show');
+    Route::post('/applications/{id}/approve', [AdminAttendanceController::class, 'approveApplication'])->name('admin.application.approve');
+    Route::post('/applications/{id}/reject', [AdminAttendanceController::class, 'rejectApplication'])->name('admin.application.reject');
 });

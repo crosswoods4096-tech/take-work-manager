@@ -59,11 +59,12 @@
                     <th>出勤・退勤</th>
                     <td>
                         <div class="time-range-group">
+                            {{-- 💡 value の中に old() を追加し、入力値を保持できるように修正 --}}
                             <input type="time" name="check_in" class="time-input"
-                                value="{{ $attendance && $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '' }}">
+                                value="{{ old('check_in', $attendance && $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '') }}">
                             <span class="range-separator">～</span>
                             <input type="time" name="check_out" class="time-input"
-                                value="{{ $attendance && $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '' }}">
+                                value="{{ old('check_out', $attendance && $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '') }}">
                         </div>
                     </td>
                 </tr>
