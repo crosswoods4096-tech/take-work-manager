@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 
@@ -38,8 +39,8 @@ Route::middleware(['auth'])->group(function () {
 
     // 勤怠一覧画面
     Route::get('/attendance/list', [AttendanceController::class, 'list'])->name('attendance.index');
-    // 👇 これを追記：レポート画面用の張りぼてルート
-    Route::get('/report', [AttendanceController::class, 'report'])->name('reports.index');
+    // ➕ 【今回追加】一般ユーザー用：マイ勤怠レポートルート
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     // 申請一覧画面の表示 (GET)
     Route::get('/stamp_correction_request/list', [ApplicationController::class, 'index'])->name('applicate.index');
     // 勤怠詳細画面（表示はAttendanceControllerが担当）

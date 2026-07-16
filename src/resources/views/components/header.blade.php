@@ -30,6 +30,7 @@
             <a href="{{ route('attendance.register') }}" class="header-link">勤怠</a>
             <a href="{{ route('attendance.index') }}" class="header-link">勤怠一覧</a>
             <a href="{{ route('applicate.index') }}" class="header-link">申請</a>
+            <a href="{{ route('reports.index') }}" class="header-link">レポート</a>
             @endif
 
             {{-- 🚪 共通：ログアウト（POST送信） --}}
