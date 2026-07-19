@@ -23,7 +23,7 @@ class CorrectionRequest extends FormRequest
         return [
             'check_in'  => ['required', 'date_format:H:i'],
             'check_out' => ['required', 'date_format:H:i'],
-            'remarks'   => ['required', 'string', 'max:1000'],
+            'remarks'   => ['sometimes', 'required', 'string', 'max:1000'],
             'rests'     => ['nullable', 'array'],
             'rests.*.start_time' => ['nullable', 'required_with:rests.*.end_time', 'date_format:H:i'],
             'rests.*.end_time'   => ['nullable', 'required_with:rests.*.start_time', 'date_format:H:i'],

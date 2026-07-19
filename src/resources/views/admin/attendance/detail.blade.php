@@ -4,8 +4,19 @@
 <div class="admin-detail-container" style="padding: 20px; max-width: 800px; margin: 0 auto;">
 
     <h2 style="margin-bottom: 20px; font-size: 1.5rem; font-weight: bold;">勤怠詳細（管理者修正）</h2>
+    {{-- ➕ 以下のエラーメッセージ表示エリアを追加 --}}
+    @if ($errors->any())
+    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     <div style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+
 
         <form action="{{ route('admin.attendance.update', ['id' => $attendance->id]) }}" method="POST">
             @csrf

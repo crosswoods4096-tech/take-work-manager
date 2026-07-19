@@ -23,17 +23,31 @@
         </div>
         @endif
 
-        <form action="{{ route('admin.login.submit') }}" method="POST">
+        <form action="{{ route('admin.login.submit') }}" method="POST" novalidate>
             @csrf
+            {{-- 💡 「ログイン情報が登録されていません」のエラー表示 --}}
+            @error('login_error')
+            <div class="alert alert-danger" style="color: red; margin-bottom: 15px;">
+                {{ $message }}
+            </div>
+            @enderror
 
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">メールアドレス</label>
-                <input type="email" name="email" value="{{ old('email') }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <input type="email" name="email" value="{{ old('email') }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                {{-- 💡 「メールアドレスを入力してください」のエラー表示 --}}
+                @error('email')
+                <span style="color: red; font-size: 0.85rem;">{{ $message }}</span>
+                @enderror
             </div>
 
             <div style="margin-bottom: 25px;">
                 <label style="display: block; margin-bottom: 5px; color: #666; font-size: 0.9em;">パスワード</label>
-                <input type="password" name="password" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <input type="password" name="password" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                {{-- 💡 「パスワードを入力してください」のエラー表示 --}}
+                @error('password')
+                <span style="color: red; font-size: 0.85rem;">{{ $message }}</span>
+                @enderror
             </div>
 
             <button type="submit" style="width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer;">

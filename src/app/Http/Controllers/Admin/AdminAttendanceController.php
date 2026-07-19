@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\CorrectionRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -49,15 +50,12 @@ class AdminAttendanceController extends Controller
     /**
      * ③ 勤怠データの直接修正保存（管理者用・分単位の自動再計算付き）
      */
-    public function updateAttendance(\Illuminate\Http\Request $request, $id)
+    public function updateAttendance(\App\Http\Requests\CorrectionRequest $request, $id)
     {
         $attendance = Attendance::findOrFail($id);
 
-        // 1. バリデーション
-        $request->validate([
-            'check_in'  => ['required', 'date_format:H:i'],
-            'check_out' => ['required', 'date_format:H:i'],
-        ]);
+        // ⭕️ 修正：手動の $request->validate(...) は削除します。
+        // （メソッドに入った時点で CorrectionRequest のオリジナルバリデーションが自動完了しています）
 
         // 2. 出退勤時間の更新（まずは時間を文字列として保存）
         $attendance->update([
@@ -87,7 +85,7 @@ class AdminAttendanceController extends Controller
             }
         }
 
-        // 💡 4. 【重要】管理者が変更した時間を元に、総拘束時間と総休憩時間を「分」で再計算する
+        // 4. 【重要】管理者が変更した時間を元に、総拘束時間と総休憩時間を「分」で再計算する
         $attendance->refresh(); // データベースの最新の休憩データを再読み込み
 
         // 拘束時間の計算 (出勤 〜 退勤)

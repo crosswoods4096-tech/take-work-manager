@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\AdminLoginRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,32 +20,27 @@ class AdminAuthController extends Controller
     }
 
     // ログイン処理
-    public function login(Request $request)
+    public function login(AdminLoginRequest $request)
     {
-        // バリデーション
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        // 1. この時点で、メール・パスワードの「未入力チェック」は自動で通過しています。
 
-        // 💡 認証を試みる
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // ログイン成功後、さらに role が admin かどうかをチェック
-            if (Auth::user()->role === 'admin') {
-                $request->session()->regenerate();
-                return redirect()->route('admin.attendance.daily');
-            }
+        // 2. 送信されたログイン情報の取得
+        $credentials = $request->only('email', 'password');
 
-            // 一般ユーザー（general）だった場合は即座にログアウトさせてエラーにする
-            Auth::logout();
-            return back()->withErrors([
-                'email' => '管理者アカウントではないため、ログインできません。',
-            ]);
+        // 管理者としてのログイン試行（roleがadminであることも条件に加えるのが安全です）
+        // ※ credentialsに加えて、roleのチェックも一緒に行う場合の例です
+        $credentials['role'] = 'admin';
+
+        if (Auth::attempt($credentials)) {
+            // ⭕️ ログイン成功
+            $request->session()->regenerate();
+            return redirect()->route('admin.attendance.daily'); // 管理者トップへ
         }
 
+        // ❌ ログイン情報が間違っている場合（要件のメッセージを設定）
         return back()->withErrors([
-            'email' => 'ログイン情報が登録されていません。',
-        ]);
+            'login_error' => 'ログイン情報が登録されていません',
+        ])->withInput($request->only('email')); // メールアドレスだけ入力値を保持
     }
 
     // ログアウト処理

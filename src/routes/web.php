@@ -7,6 +7,8 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 // ==========================================
 // ゲスト専用ルート（ログインしていない状態のみアクセス可能）
@@ -80,3 +82,25 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/applications/{id}/approve', [AdminAttendanceController::class, 'approveApplication'])->name('admin.application.approve');
     Route::post('/applications/{id}/reject', [AdminAttendanceController::class, 'rejectApplication'])->name('admin.application.reject');
 });
+// ---------------------------------------------------------
+// ✉️ メール認証関連のルート群（ログイン中のみアクセス可能）
+// ---------------------------------------------------------
+// Route::middleware(['auth'])->group(function () {
+
+//     // ① 認証誘導画面の表示
+//     Route::get('/email/verify', function () {
+//         return view('auth.verify-email');
+//     })->name('verification.notice');
+
+//     // ② 認証メールの再送処理
+//     Route::post('/email/verification-notification', function (Request $request) {
+//         $request->user()->sendEmailVerificationNotification();
+//         return back()->with('status', 'verification-link-sent');
+//     })->middleware(['throttle:6,1'])->name('verification.send');
+
+//     // ③ メール内の認証リンクをクリックしたときの処理
+//     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+//         $request->fulfill();
+//         return redirect()->route('attendance.register'); // 認証完了後のリダイレクト先（打刻画面など）
+//     })->middleware(['signed'])->name('verification.verify');
+// });

@@ -1,39 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container d-flex justify-content-center">
-    <div class="w-100 text-center" style="max-width: 480px; margin-top: 80px;">
+<div style="max-width: 600px; margin: 60px auto; padding: 30px; background: #fff; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; font-family: sans-serif;">
 
-        {{-- タイトル --}}
-        <h2 class="mb-4">メール認証のお願い</h2>
+    <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #333;">会員登録の完了まであと一歩です</h2>
 
-        {{-- 誘導メッセージ --}}
-        <p class="mb-4">
-            会員登録ありがとうございます。<br>
-            ご登録のメールアドレス宛に認証メールを送信しました。<br>
-            認証を完了してからログインを行ってください。
-        </p>
+    <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+        ご登録いただいたメールアドレスに確認用のリンクを送信しました。<br>
+        メール内のリンクをクリックして、登録を完了させてください。
+    </p>
 
-        {{-- 認証はこちらからボタン --}}
-        <div class="d-grid mb-3">
-            <a href="http://localhost:8025/" class="btn btn-primary py-2">
-                認証はこちらから
-            </a>
-        </div>
+    @if (session('status') == 'verification-link-sent')
+    <div style="background: #e6fffa; border: 1px solid #38b2ac; color: #234e52; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9rem;">
+        🟢 新しい認証リンクを再送しました！
+    </div>
+    @endif
 
-        {{-- 再送リンク --}}
+    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <p style="font-size: 0.85rem; color: #999; margin-bottom: 15px;">もしメールが届かない場合は、以下のボタンから再送できます。</p>
+
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-            <button type="submit" class="btn btn-link text-muted" style="font-size: 0.9rem;">
+            <button type="submit" style="background: #000; color: #fff; border: none; padding: 10px 20px; font-size: 0.9rem; font-weight: bold; border-radius: 4px; cursor: pointer;">
                 認証メールを再送する
             </button>
         </form>
-
-        {{-- メッセージ表示 --}}
-        @if (session('message'))
-        <p class="text-success mt-3">{{ session('message') }}</p>
-        @endif
-
     </div>
+
 </div>
 @endsection
