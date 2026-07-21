@@ -23,6 +23,10 @@ class Application extends Model
     /**
      * リレーション定義：この申請はどのユーザーのものか（多対1）
      */
+    public function attendance()
+    {
+        return $this->belongsTo(Attendance::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);
