@@ -1,59 +1,65 @@
-/* 画面全体の背景（薄いグレー） */
-.attendance-container {
-    background-color: #f7f7f9;
-    min-height: calc(100vh - 70px);
-    padding: 40px 20px;
-    font-family: "Helvetica Neue", Arial, sans-serif;
+/* 全体の背景色（全体がほんのりグレーの場合） */
+body {
+    background-color: #f4f5f7;
 }
 
-/* 一覧を包むメインエリア */
-.attendance-list-wrapper {
-    max-width: 900px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* タイトル（左寄せ） */
+/* タイトル（黒い縦バー付き） */
 .page-title {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #333;
-    margin-bottom: 30px;
-    border-left: 4px solid #000; /* 「｜」の部分をより強調したい場合 */
-    padding-left: 8px;
+    color: #000;
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
 }
 
-/* 月移動ナビゲーション */
+.page-title::before {
+    content: "";
+    display: inline-block;
+    width: 6px; /* 縦線の太さ */
+    height: 1.2em; /* 縦線の高さ */
+    background-color: #000; /* 縦線の色 */
+    margin-right: 12px; /* 文字との余白 */
+    border-radius: 2px;
+}
+
+/* 月移動ナビゲーションカード */
 .month-navigation {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* 両端と中央に均等配置 */
     align-items: center;
-    max-width: 400px;
-    margin: 0 auto 30px auto;
+    background-color: #ffffff; /* 白背景 */
+    padding: 12px 24px; /* 内側の余白 */
+    border-radius: 10px; /* 角丸 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 控えめな影 */
+    margin-bottom: 24px;
 }
 
-.current-month {
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: #111;
-}
-
-.nav-link {
-    color: #000;
+/* 前月・翌月ボタン */
+.nav-btn {
+    color: #6b7280; /* 少し落ち着いたグレー */
     text-decoration: none;
-    font-weight: bold;
-    border: 1px solid #ccc;
-    padding: 6px 14px;
-    border-radius: 4px;
-    background: #fff;
-    transition: background 0.2s;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: color 0.2s;
 }
 
-.nav-link:hover {
-    background: #f0f0f0;
+.nav-btn:hover {
+    color: #111827; /* ホバー時に濃い色に */
+}
+
+/* 中央の年月表示 */
+.current-month {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* アイコンとテキストの間隔 */
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #111827;
+}
+
+.calendar-icon {
+    font-size: 1.2rem;
 }
 
 /* 勤怠テーブル */
