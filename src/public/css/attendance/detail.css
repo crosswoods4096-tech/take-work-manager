@@ -57,6 +57,7 @@
 /* 日付表示（左側に年、右側に日付を配置しつつ時間入力と揃える） */
 .date-display {
     display: flex;
+    margin-left: 50px;
     align-items: center;
     font-size: 1.1rem;
     font-weight: bold;
@@ -131,4 +132,20 @@
     border: 1px solid #ccc; /* 枠線の色 */
     border-radius: 4px; /* 角を少し丸く */
     box-sizing: border-box;
+}
+/* 休憩行の背景色指定を透明（または白）にして灰色の塗りつぶしを解除 */
+.break-group,
+.break-add-row {
+    background-color: transparent !important; /* 灰色背景を削除 */
+    padding: 0; /* 余分な内側余白もリセット（必要に応じて調整） */
+}
+
+/* もし「+ 休憩を追加」ボタン/テキストの装飾がある場合 */
+.btn-add-break {
+    background: none;
+    border: none;
+    color: #333333; /* 理由や出勤欄と同じ黒系文字色に */
+    font-weight: bold;
+    padding: 0;
+    cursor: pointer;
 }

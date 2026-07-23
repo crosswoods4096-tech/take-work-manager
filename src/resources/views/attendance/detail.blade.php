@@ -12,14 +12,14 @@
         {{-- 1. タイトル（左寄せ） --}}
         <h2 class="page-title">勤怠詳細</h2>
 
-        {{-- 💡 追記：コントローラからのカスタムエラーメッセージ（session('error')）を表示する --}}
+        {{-- 💡 コントローラからのカスタムエラーメッセージ（session('error')）を表示 --}}
         @if (session('error'))
         <div class="alert alert-danger" style="color: red; background-color: #fde8e8; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #f8b4b4;">
             {{ session('error') }}
         </div>
         @endif
 
-        {{-- 💡 参考：通常のバリデーションエラー（入力不備など）も表示したい場合はこちらも便利です --}}
+        {{-- 💡 バリデーションエラー表示 --}}
         @if ($errors->any())
         <div class="alert alert-danger" style="color: red; background-color: #fde8e8; padding: 10px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #f8b4b4;">
             <ul style="margin: 0; padding-left: 20px;">
@@ -49,7 +49,7 @@
                     <td>
                         <div class="date-display">
                             <span class="date-year">{{ \Carbon\Carbon::parse($date)->format('Y年') }}</span>
-                            <span class="date-day">{{ \Carbon\Carbon::parse($date)->isoFormat('M月D日(ddd)') }}</span>
+                            <span class="date-day">{{ \Carbon\Carbon::parse($date)->isoFormat('M月D日') }}</span>
                         </div>
                     </td>
                 </tr>
@@ -59,7 +59,6 @@
                     <th>出勤・退勤</th>
                     <td>
                         <div class="time-range-group">
-                            {{-- 💡 value の中に old() を追加し、入力値を保持できるように修正 --}}
                             <input type="time" name="check_in" class="time-input"
                                 value="{{ old('check_in', $attendance && $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '') }}">
                             <span class="range-separator">～</span>
@@ -69,37 +68,42 @@
                     </td>
                 </tr>
 
-                {{-- 💡 休憩（ループ処理で数に関わらずすべて自動表示） --}}
-                @foreach ($rests as $index => $rest)
+                {{-- 💡 休憩（既存の休憩をループ表示） --}}
+                @if($attendance && $attendance->rests)
+                @foreach($attendance->rests as $index => $rest)
                 <tr>
-                    {{-- 最初の休憩だけ「休憩」、2回目以降は「休憩2」「休憩3」と表示を切り替えるおまけ付き --}}
-                    <th>{{ $index === 0 ? '休憩' : '休憩' . ($index + 1) }}</th>
+                    <th>
+                        @if($loop->first)
+                        休憩
+                        @else
+                        休憩{{ $loop->iteration }}
+                        @endif
+                    </th>
                     <td>
                         <div class="time-range-group">
-                            {{-- 💡 old() を追加して、エラー時も入力が残るようにしています --}}
-                            <input type="time" name="rests[{{ $rest->id }}][start_time]" class="time-input"
-                                value="{{ old('rests.'.$rest->id.'.start_time', $rest->start_time ? \Carbon\Carbon::parse($rest->start_time)->format('H:i') : '') }}">
+                            <input type="time" name="rests[{{ $index }}][start_time]" class="time-input"
+                                value="{{ old("rests.{$index}.start_time", $rest->start_time ? \Carbon\Carbon::parse($rest->start_time)->format('H:i') : '') }}">
                             <span class="range-separator">～</span>
-                            <input type="time" name="rests[{{ $rest->id }}][end_time]" class="time-input"
-                                value="{{ old('rests.'.$rest->id.'.end_time', $rest->end_time ? \Carbon\Carbon::parse($rest->end_time)->format('H:i') : '') }}">
+                            <input type="time" name="rests[{{ $index }}][end_time]" class="time-input"
+                                value="{{ old("rests.{$index}.end_time", $rest->end_time ? \Carbon\Carbon::parse($rest->end_time)->format('H:i') : '') }}">
                         </div>
                     </td>
                 </tr>
                 @endforeach
+                @endif
 
-                {{-- 💡 ここを追記：数が増える時のための「新しい休憩枠」を1つ余分に用意 --}}
-                <tr class="new-rest-row" style="background-color: #fafafa;">
-                    <th>
-                        <span style="font-size: 0.9em; color: #666; font-weight: normal;">➕ 休憩を追加</span>
-                    </th>
+                {{-- 💡 新規追加用の休憩枠（1行分追加） --}}
+                @php
+                $nextRestNumber = ($attendance && $attendance->rests) ? count($attendance->rests) + 1 : 1;
+                $labelName = ($nextRestNumber === 1) ? '休憩' : '休憩' . $nextRestNumber;
+                @endphp
+                <tr>
+                    <th>{{ $labelName }}</th>
                     <td>
                         <div class="time-range-group">
-                            {{-- 新規追加分は、IDの代わりに 'new' という固定のキーで送信します --}}
-                            <input type="time" name="rests[new][start_time]" class="time-input"
-                                value="{{ old('rests.new.start_time') }}">
+                            <input type="time" name="new_rest_start" class="time-input" value="{{ old('new_rest_start') }}">
                             <span class="range-separator">～</span>
-                            <input type="time" name="rests[new][end_time]" class="time-input"
-                                value="{{ old('rests.new.end_time') }}">
+                            <input type="time" name="new_rest_end" class="time-input" value="{{ old('new_rest_end') }}">
                         </div>
                     </td>
                 </tr>
