@@ -100,25 +100,18 @@
     text-overflow: ellipsis; /* 理由が長すぎる場合は「...」で省略 */
 }
 
-/* 状態バッジ */
-.status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: bold;
-}
+/*バッジの彩色機能オフ*/
 .badge-pending {
-    background-color: #ffeeba;
-    color: #856404;
+    background-color: #ffffff;
+    color: #000000;
 } /* 薄い黄色 */
 .badge-approved {
-    background-color: #d4edda;
-    color: #155724;
+    background-color: #ffffff;
+    color: #000000;
 } /* 薄い緑 */
 .badge-rejected {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: #ffffff;
+    color: #000000;
 } /* 薄い赤 */
 
 /* 詳細リンク */

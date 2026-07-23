@@ -58,18 +58,18 @@
 
                         {{-- 修正箇所 1：対象日時 --}}
                         <td class="col-date">
-                            {{ \Carbon\Carbon::parse($app->attendance->date ?? $app->target_date)->isoFormat('YYYY/MM/DD(ddd)') }}
+                            {{ \Carbon\Carbon::parse($app->attendance->date ?? $app->target_date)->isoFormat('YYYY/MM/DD') }}
                         </td>
 
                         {{-- 修正箇所 2：申請理由 --}}
                         <td class="col-reason">{{ $app->reason }}</td>
 
                         {{-- 修正箇所 3：申請日時 --}}
-                        <td>{{ \Carbon\Carbon::parse($app->application_date ?? $app->created_at)->format('Y/m/d H:i') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($app->application_date ?? $app->created_at)->format('Y/m/d') }}</td>
 
                         {{-- 修正箇所 4：詳細リンク（now() をやめて勤怠の日付を渡す） --}}
                         <td>
-                            <a href="{{ route('attendance.detail', ['date' => \Carbon\Carbon::parse($app->attendance->date ?? $app->target_date)->format('Y-m-d')]) }}">詳細</a>
+                            <a href="{{ route('attendance.detail', ['date' => \Carbon\Carbon::parse($app->attendance->date ?? $app->target_date)->format('Y-m-d')]) }}" class="detail-link">詳細</a>
                         </td>
                     </tr>
                     @empty
